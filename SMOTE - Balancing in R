@@ -1,0 +1,109 @@
+setwd("C:/Users/g/Desktop")
+##set working dir to desktop
+
+dat <- read.csv("Dialysis_Facility_Compare_-_Listing_by_Facility_Slimmed.csv",header=TRUE,sep=',') 
+##import csv into R
+
+dput(names(dat)) 
+##list attribute names
+
+colnames(dat) <- c("Target", "Late.Shift", "X..of.Dialysis.Stations", 
++                    "Offers.in.center.hemodialysis", "Offers.peritoneal.dialysis", 
++                    "Offers.home.hemodialysis.training", "Patient.Transfusion.category.text", 
++                    "Rate.of.hospital.readmission.category.text", "Patient.Survival.Category.Text", 
++                    "Mortality.Rate..Facility.", "Readmission.Rate..Facility.", "Patient.Infection.category.text", 
++                    "Standard.Infection.Ratio", "Transfusion.Rate..Facility.") 
+
+##Rename long target attribute name to "Target" 
+
+table(dat$Target)
+##View sum of binary variables, profit as 1 and nonprofit as 0
+
+prop.table(table(dat$Target))
+##view proportion of variable profit vs nonprofit as 1 and 0. 
+
+ind <- sapply(dat, is.factor)
+#specify attributes which are factors
+
+dat[ind] <- lapply(dat[ind], as.character)
+##convert attributes as factors contents to char
+
+str(dat)
+##view the structure of the dataset
+
+dat [dat == "Profit"] = 1
+dat[ dat == "Non Profit"] = 0
+dat [ dat == "FALSE"] = 0
+dat [ dat == "TRUE"] = 1
+dat[ dat == "Worse than Expected"] = -1
+dat[ dat == "Better than Expected"] = 1
+dat[ dat == "As Expected"] = 0
+dat[ dat == "Not Available"] = NA
+##Convert hybrid quantitative/qualitative dataset to quantitative only
+
+dat[ind] <- lapply(dat[ind], as.numeric)
+#define factors as numeric
+
+get.packages('caret')
+#install caret packages to manipulate the dataset into a training and a testing portion
+
+library(caret)
+#load caret library
+
+set.seed(1234)
+splitIndex <- createDataPartition(dat$Target, p=0.50,list=FALSE,times=1)
+#create table containing a random 50% of the total observations in the dataset.
+
+trainSplit <- dat[splitIndex,]
+# Pass generated resample table SplitIndex to the training set
+
+
+testSplit <- dat[-splitIndex,]
+# Pass remaining obervations not found in trainSplit to testing set
+
+table(trainSplit$Target)
+prop.table(table(trainSplit$Target))
+#verify that randomly generated training set retains close to the original ratio of Profit to Non Profit
+
+testSplit <- testplit[complete.cases(testSplit),]
+testSplit <- testSplit[complete.cases(testSplit),]
+#remove obervations with any attribute as NA
+
+prop.table(table(trainSplit$Target))
+prop.table(table(testSplit$Target))
+#verify again that the ratio of Profit to Non-Profit is retained
+
+
+ctrl <- trainControl(method= "CV", NUMBER = 5)
+Ttbmodel <- train(target ~ ., data=TrainSplit, method = "treebag", trControl = ctrl)
+#created model, time to predict
+
+predictors <- names(trainSplit)[names{trainSplit) != 'target']
+pred <- predict(tbmodels$finalModel, testSplit[,predictors])
+#prediction algorithm
+
+library(pROC)
+auc <- roc(testSplit$Target, pred)
+print(au)
+#visualize prediction results
+
+trainSplit$Target <- as.factor(trainSplit$target)
+trainSplit <- SMOTE(target ! ., trainSplit, perc.over = 100, perc.under = 200)
+#oversample minority of $Target by a factor of 2, undersampled majority by a factor of 2
+
+table(trainSplit$target)
+dim(trainSplit)
+#display results of SMOTE
+
+trainSplit$target <- as.numberic(trainSplit$target)
+tbmodel <- train(target ~., data = trainSplit, method = "treebag", trControl = ctrl)
+#train much smaller dataset
+
+pred <- predict(tbmodels$finalModel, testSplit[,predictors])
+auc <- roc(testSplit$target, pred)
+print(auc)
+#print results of prediction on SMOTE balanced, much smaller dataset
+
+
+
+
