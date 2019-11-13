@@ -89,7 +89,7 @@ print(au)
 
 trainSplit$Target <- as.factor(trainSplit$target)
 trainSplit <- SMOTE(target ! ., trainSplit, perc.over = 100, perc.under = 200)
-#oversample minority of $Target by a factor of 2, undersampled majority by a factor of 2
+#oversample minority of $Target by a factor of 2, undersampled majority by a factor of 1
 
 table(trainSplit$target)
 dim(trainSplit)
